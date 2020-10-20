@@ -1,1 +1,5 @@
 # ltcVideoPi
+Dependencies
+
+ofxLTCReader
+ofxOMXPlayer
