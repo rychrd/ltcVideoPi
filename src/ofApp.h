@@ -4,7 +4,7 @@
 #include "ofxLtcReader.h"
 #include "ofxOMXPlayer.h"
 
-class ofApp : public ofBaseApp, public ofxOMXPlayerListener{
+class ofApp : public ofBaseApp{ //, public ofxOMXPlayerListener{
 
 	public:
 		void setup();
@@ -13,8 +13,8 @@ class ofApp : public ofBaseApp, public ofxOMXPlayerListener{
 
 	        void audioIn(float * input, int bufferSize, int nChannels);
 		void keyPressed (int key);
-		void onVideoEnd(ofxOMXPlayer *player);
-		void onVideoLoop(ofxOMXPlayer *player);
+		//void onVideoEnd(ofxOMXPlayer *player);
+		//void onVideoLoop(ofxOMXPlayer *player);
 
 		void doRestart();
 
@@ -23,8 +23,8 @@ class ofApp : public ofBaseApp, public ofxOMXPlayerListener{
 		ofxOMXPlayer player;
 		ofxOMXPlayerSettings settings;		
 
-		int ltcFrame, prevLTC;
-		int drift;
+		int ltcFrame, prevLTC, movFrame;
+		int drift, absDrift;
 		int frameTarget;
 		int modFrame;
 		int length, reloads;
