@@ -28,6 +28,6 @@ class ofApp : public ofBaseApp{ //, public ofxOMXPlayerListener{
 		int frameTarget;
 		int modFrame;
 		int length, reloads;
-		bool bRestart, bSpeedUp, bSlowDown;
+		bool bRestart, bSpeedUp, bSlowDown, bIsJumping;
 
 };

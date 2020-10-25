@@ -18,7 +18,7 @@ void ofApp::setup(){
     settings.videoPath = videoPath;
     settings.useHDMIForAudio = true;
     settings.enableLooping = true;
-    settings.enableTexture = false;
+    settings.enableTexture = true;
 //    settings.listener = this;
     
     player.setup(settings);
@@ -31,6 +31,7 @@ void ofApp::setup(){
    reloads = 0;
    prevLTC = 0;
    movFrame = 0;
+   bIsJumping = false;
 }
 
 //--------------------------------------------------------------
@@ -74,14 +75,19 @@ if(absDrift < 1)
     	bSlowDown = false;
  }
 
-else if(absDrift > 24)
+else if(absDrift > 24 && !bIsJumping)
 	{
-	  player.setNormalSpeed();  	  
+	  bIsJumping = true;
   	  player.setPaused(true);
-  	  player.seekToFrame(modFrame);
+  	  player.seekToFrame(abs(modFrame));
 	  player.setPaused(false);
+	  ofLog(OF_LOG_NOTICE, "did pause - jump to frame");
  	}
 
+else 
+	{
+  	 bIsJumping = false;
+	}
 	
 //if(player.isFrameNew())
 //{	
@@ -114,7 +120,7 @@ else
 
 
 prevLTC = ltcFrame;
-
+//bIsJumping = false;
 }
 //--------------------------------------------------------------
 void ofApp::draw(){
