@@ -13,8 +13,8 @@ class ofApp : public ofBaseApp{ //, public ofxOMXPlayerListener{
 
 	        void audioIn(float * input, int bufferSize, int nChannels);
 		void keyPressed (int key);
-		//void onVideoEnd(ofxOMXPlayer *player);
-		//void onVideoLoop(ofxOMXPlayer *player);
+		void onVideoEnd(ofxOMXPlayer *player);
+		void onVideoLoop(ofxOMXPlayer *player);
 
 		void doRestart();
 
@@ -28,6 +28,6 @@ class ofApp : public ofBaseApp{ //, public ofxOMXPlayerListener{
 		int frameTarget;
 		int modFrame;
 		int length, reloads;
-		bool bRestart, bSpeedUp, bSlowDown, bIsJumping;
+		bool bRestart, bSpeedUp, bSlowDown, bCanSeek;
 
 };

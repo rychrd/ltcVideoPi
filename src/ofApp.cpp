@@ -16,7 +16,7 @@ void ofApp::setup(){
 
     string videoPath = ofToDataPath("video/Timecoded_Big_bunny_1.mov", true);
     settings.videoPath = videoPath;
-    settings.useHDMIForAudio = true;
+    settings.useHDMIForAudio = false;
     settings.enableLooping = true;
     settings.enableTexture = true;
 //    settings.listener = this;
@@ -31,19 +31,21 @@ void ofApp::setup(){
    reloads = 0;
    prevLTC = 0;
    movFrame = 0;
-   bIsJumping = false;
+   bCanSeek = true;
 }
 
 //--------------------------------------------------------------
-//void ofApp::onVideoEnd(ofxOMXPlayer* player)
-//{/
-//}
-//--------------------------------------------------------------
-//void ofApp::onVideoLoop(ofxOMXPlayer* player)
-//{
-//player->reopen();
+void ofApp::onVideoEnd(ofxOMXPlayer* player)
+{
 
-//}
+    bCanSeek = false;
+
+}
+//--------------------------------------------------------------
+void ofApp::onVideoLoop(ofxOMXPlayer* player)
+{
+    bCanSeek = false;
+}
 //--------------------------------------------------------------
 
 void ofApp::update(){
@@ -65,33 +67,48 @@ modFrame = ltcFrame % length;
 drift	= modFrame - movFrame;
 absDrift = abs(drift);
 
+if(absDrift >=72 && !player.isSubmitEOS() && modFrame > 24)
+{
+    bCanSeek = true;
+}
+
+else
+
+{
+    bCanSeek = false;
+}
+
+if(player.isSubmitEOS())
+{
+    bCanSeek = false;
+}
+
 if(absDrift < 1) 
  {
 	if(player.engine.currentSpeed != player.engine.normalSpeedIndex)
 	{
 	 player.setNormalSpeed();
     	}
-	bSpeedUp = false;
-    	bSlowDown = false;
  }
 
-else if(absDrift > 24 && !bIsJumping)
-	{
-	  bIsJumping = true;
+
+if(bCanSeek)
+{
+    bCanSeek = false;
+	
   	  player.setPaused(true);
   	  player.seekToFrame(abs(modFrame));
 	  player.setPaused(false);
-	  ofLog(OF_LOG_NOTICE, "did pause - jump to frame");
- 	}
+	  ofLog(OF_LOG_NOTICE, "did pause - jumped to frame %i", modFrame);
+	
+}
 
-else 
-	{
-  	 bIsJumping = false;
-	}
 	
 //if(player.isFrameNew())
-//{	
-if((drift > 5) && (player.getPlaybackSpeed() != 1125))
+if(!(player.isSubmitEOS()))
+{
+	
+if((drift > 5) && (player.getPlaybackSpeed() != 1125) && !bCanSeek)
   	  {
   	   player.engine.currentSpeed = 6;
   	   player.engine.SetSpeed();
@@ -99,14 +116,14 @@ if((drift > 5) && (player.getPlaybackSpeed() != 1125))
   	   bSlowDown = false;
     	  }
 	
-if((drift < -5) && (player.getPlaybackSpeed() != 62))
+if((drift < -5) && (player.getPlaybackSpeed() != 62) && !bCanSeek)
   	  {
   	   player.engine.currentSpeed = 0;
   	   player.engine.SetSpeed();
  	   bSlowDown = true;
  	   bSpeedUp = false;
     	  }
-//}	
+}	
 if((prevLTC == ltcFrame) && (absDrift == 0))
   {
 //   player.setPaused(true);
@@ -119,8 +136,8 @@ else
   }
 
 
+
 prevLTC = ltcFrame;
-//bIsJumping = false;
 }
 //--------------------------------------------------------------
 void ofApp::draw(){
@@ -128,7 +145,7 @@ void ofApp::draw(){
 
  if(player.isTextureEnabled())
 {
-    player.draw(0,0,ofGetWidth()*0.5, ofGetHeight()*0.5);
+    player.draw(0,0,ofGetWidth(), ofGetHeight());
 
     ofPushStyle();
 
@@ -154,6 +171,7 @@ void ofApp::draw(){
     ofDrawBitmapString("reloads : " + ofToString(reloads), 20, 190);
     ofDrawBitmapString("player speed : " + ofToString(player.getPlaybackSpeed()), 20, 210);
     ofDrawBitmapString("engine speed : " + ofToString(player.engine.currentSpeed), 20, 230);
+    ofDrawBitmapString("EOS submitted : " + ofToString(player.isSubmitEOS()), 20, 250);
 
 
     ofPopStyle();
