@@ -19,7 +19,7 @@ void ofApp::setup(){
     settings.useHDMIForAudio = false;
     settings.enableLooping = true;
     settings.enableTexture = true;
-//    settings.listener = this;
+    settings.listener = this;
     
     player.setup(settings);
     
@@ -61,27 +61,30 @@ if(!player.getTotalNumFrames())
  reloads++;
 } 
 
+
 movFrame = player.getCurrentFrame();
 modFrame = ltcFrame % length;
 
-drift	= modFrame - movFrame;
+
+drift = modFrame - movFrame;
 absDrift = abs(drift);
 
-if(absDrift >=72 && !player.isSubmitEOS() && modFrame > 24)
+
+if(absDrift<72 || player.isSubmitEOS())
 {
-    bCanSeek = true;
+    bCanSeek = false;
 }
 
 else
 
 {
-    bCanSeek = false;
+    bCanSeek = true;
 }
 
-if(player.isSubmitEOS())
-{
-    bCanSeek = false;
-}
+//if(player.isSubmitEOS())
+//{
+//    bCanSeek = false;
+//}
 
 if(absDrift < 1) 
  {
@@ -91,15 +94,17 @@ if(absDrift < 1)
     	}
  }
 
+int frameToSeek = abs((ltcFrame + 12) % length);
 
 if(bCanSeek)
 {
-    bCanSeek = false;
-	
-  	  player.setPaused(true);
-  	  player.seekToFrame(abs(modFrame));
-	  player.setPaused(false);
-	  ofLog(OF_LOG_NOTICE, "did pause - jumped to frame %i", modFrame);
+    if(player.isSubmitEOS()) {frameToSeek = 0;}
+    //player.setPaused(true);
+//    player.seekToFrame(frameToSeek);
+    //player.setPaused(false);
+//    ofLog(OF_LOG_NOTICE, "did pause - jumped to frame %i\n", frameToSeek);
+    
+    //bCanSeek = false;
 	
 }
 
@@ -108,7 +113,7 @@ if(bCanSeek)
 if(!(player.isSubmitEOS()))
 {
 	
-if((drift > 5) && (player.getPlaybackSpeed() != 1125) && !bCanSeek)
+if((drift > 5) && (player.getPlaybackSpeed() < 1125))
   	  {
   	   player.engine.currentSpeed = 6;
   	   player.engine.SetSpeed();
@@ -116,7 +121,7 @@ if((drift > 5) && (player.getPlaybackSpeed() != 1125) && !bCanSeek)
   	   bSlowDown = false;
     	  }
 	
-if((drift < -5) && (player.getPlaybackSpeed() != 62) && !bCanSeek)
+else if((drift < -5) && (player.getPlaybackSpeed() > 62))
   	  {
   	   player.engine.currentSpeed = 0;
   	   player.engine.SetSpeed();
@@ -172,6 +177,7 @@ void ofApp::draw(){
     ofDrawBitmapString("player speed : " + ofToString(player.getPlaybackSpeed()), 20, 210);
     ofDrawBitmapString("engine speed : " + ofToString(player.engine.currentSpeed), 20, 230);
     ofDrawBitmapString("EOS submitted : " + ofToString(player.isSubmitEOS()), 20, 250);
+    ofDrawBitmapString("seek allowed : " + ofToString(bCanSeek), 20, 270);
 
 
     ofPopStyle();

@@ -4,7 +4,7 @@
 #include "ofxLtcReader.h"
 #include "ofxOMXPlayer.h"
 
-class ofApp : public ofBaseApp{ //, public ofxOMXPlayerListener{
+class ofApp : public ofBaseApp , public ofxOMXPlayerListener{
 
 	public:
 		void setup();
