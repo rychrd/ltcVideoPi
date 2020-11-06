@@ -69,23 +69,6 @@ modFrame = ltcFrame % length;
 drift = modFrame - movFrame;
 absDrift = abs(drift);
 
-
-if(absDrift<72 || player.isSubmitEOS())
-{
-    bCanSeek = false;
-}
-
-else
-
-{
-    bCanSeek = true;
-}
-
-//if(player.isSubmitEOS())
-//{
-//    bCanSeek = false;
-//}
-
 if(absDrift < 1) 
  {
 	if(player.engine.currentSpeed != player.engine.normalSpeedIndex)
@@ -94,41 +77,21 @@ if(absDrift < 1)
     	}
  }
 
-int frameToSeek = abs((ltcFrame + 12) % length);
-
-if(bCanSeek)
-{
-    if(player.isSubmitEOS()) {frameToSeek = 0;}
-    //player.setPaused(true);
-//    player.seekToFrame(frameToSeek);
-    //player.setPaused(false);
-//    ofLog(OF_LOG_NOTICE, "did pause - jumped to frame %i\n", frameToSeek);
-    
-    //bCanSeek = false;
-	
-}
-
-	
-//if(player.isFrameNew())
-if(!(player.isSubmitEOS()))
-{
-	
 if((drift > 5) && (player.getPlaybackSpeed() < 1125))
-  	  {
-  	   player.engine.currentSpeed = 6;
-  	   player.engine.SetSpeed();
-  	   bSpeedUp = true;
-  	   bSlowDown = false;
-    	  }
+{
+    player.engine.currentSpeed = 6;
+    player.engine.SetSpeed();
+    bSpeedUp = true;
+    bSlowDown = false;
+}
 	
-else if((drift < -5) && (player.getPlaybackSpeed() > 62))
-  	  {
-  	   player.engine.currentSpeed = 0;
-  	   player.engine.SetSpeed();
- 	   bSlowDown = true;
- 	   bSpeedUp = false;
-    	  }
-}	
+if((drift < -5) && (player.getPlaybackSpeed() > 62))
+{
+    player.engine.currentSpeed = 0;
+    player.engine.SetSpeed();
+    bSlowDown = true;
+    bSpeedUp = false;
+}
 if((prevLTC == ltcFrame) && (absDrift == 0))
   {
 //   player.setPaused(true);
@@ -194,12 +157,6 @@ void ofApp::audioIn(float * input, int bufferSize, int nChannels){
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key) {
 
-//    if(key == 32) { player.togglePause(); }
-//    if(key == 48) { player.increaseSpeed(); } 
-//   else
-//    {
-//    if(key == 57) { player.decreaseSpeed(); } 
-//}
 }
 //--------------------------------------------------------------
 void ofApp::doRestart()
