@@ -16,7 +16,7 @@ void ofApp::setup(){
 
     string videoPath = ofToDataPath("video/Timecoded_Big_bunny_1.mov", true);
     settings.videoPath = videoPath;
-    settings.useHDMIForAudio = true;
+    settings.useHDMIForAudio = false;
     settings.enableLooping = true;
     settings.enableTexture = true;
     settings.listener = this;
@@ -29,15 +29,22 @@ void ofApp::setup(){
    bSpeedUp = false;
    bSlowDown = false;
    reloads = 0;
+   prevLTC = 0;
+   movFrame = 0;
+   bCanSeek = true;
 }
 
 //--------------------------------------------------------------
-void ofApp::onVideoEnd(ofxOMXPlayer *player)
+void ofApp::onVideoEnd(ofxOMXPlayer* player)
 {
+
+    bCanSeek = false;
+
 }
 //--------------------------------------------------------------
 void ofApp::onVideoLoop(ofxOMXPlayer* player)
 {
+    bCanSeek = false;
 }
 //--------------------------------------------------------------
 
@@ -48,82 +55,69 @@ ltcFrame = (3600 * reader.ltcHour()
                + reader.ltcSecond()) * 24
                + reader.ltcFrame();
 
-if(prevLTC == ltcFrame)
-  {
-   player.setPaused(true);
-  } 
-else 
-  {
-  player.setPaused(false);
-  }
-
 if(!player.getTotalNumFrames())
 {
  player.reopen();
  reloads++;
 } 
 
-else 
-{
 
-if(player.isOpen())
-  {
-	modFrame = (ltcFrame % length);
-	drift = ( modFrame - (player.getCurrentFrame()) );
+movFrame = player.getCurrentFrame();
+modFrame = ltcFrame % length;
 
-	int absDrift = abs(drift);
 
-	if (absDrift < 1 && (player.engine.currentSpeed != player.engine.normalSpeedIndex)) 
- 	{
-    	player.setNormalSpeed();
-    	bSpeedUp = false;
-    	bSlowDown = false;
- 	}
+drift = modFrame - movFrame;
+absDrift = abs(drift);
 
-	else
-
+if(absDrift < 1) 
+ {
+	if(player.engine.currentSpeed != player.engine.normalSpeedIndex)
 	{
-	if(absDrift > 24)
-	 {
-  	  player.setPaused(true);
-  	  player.seekToFrame(modFrame);
-  	  player.setPaused(false);
- 	 }
-	}
-
-	if(drift > 1 && (!bSpeedUp))
-  	{
-   	 frameTarget = (ltcFrame % length);
-  	 player.engine.currentSpeed = 6;
-  	 player.engine.SetSpeed();
-  	 bSpeedUp = true;
-  	 bSlowDown = false;
+	 player.setNormalSpeed();
     	}
+ }
 
-	if(drift < -1 && (!bSlowDown))
-  	{
-   	 frameTarget = (ltcFrame % length);
-  	 player.engine.currentSpeed = 0;
-  	 player.engine.SetSpeed();
- 	 bSlowDown = true;
- 	 bSpeedUp = false;
-    
-	}
-  }
+if((drift > 5) && (player.getPlaybackSpeed() < 1125))
+{
+    player.engine.currentSpeed = 6;
+    player.engine.SetSpeed();
+    bSpeedUp = true;
+    bSlowDown = false;
 }
-prevLTC = ltcFrame;
+	
+if((drift < -5) && (player.getPlaybackSpeed() > 62))
+{
+    player.engine.currentSpeed = 0;
+    player.engine.SetSpeed();
+    bSlowDown = true;
+    bSpeedUp = false;
+}
+if((prevLTC == ltcFrame) && (absDrift == 0))
+  {
+//   player.setPaused(true);
+//   bSpeedUp = bSlowDown = true;
+  } 
+else 
+  {
+//   player.setPaused(false);
+//   bSpeedUp = bSlowDown = false;
+  }
 
+
+
+prevLTC = ltcFrame;
 }
 //--------------------------------------------------------------
 void ofApp::draw(){
     
 
-
+ if(player.isTextureEnabled())
+{
     player.draw(0,0,ofGetWidth(), ofGetHeight());
 
     ofPushStyle();
 
-    ofSetColor(255,0,0);
+    ofSetColor(255);
 
     //Print ltc values
 
@@ -137,13 +131,20 @@ void ofApp::draw(){
     ofDrawBitmapString("ltc frame : " + ofToString(ltcFrame), 20, 70);
     ofDrawBitmapString("player frame : " + ofToString(player.getCurrentFrame()), 20, 90);
 
-    ofDrawBitmapString("drift : " + ofToString(drift), 20, 110);
-    ofDrawBitmapString("modulo frame : " + ofToString(modFrame), 20, 130);
+    ofDrawBitmapString("drift(-= player ahead) : " + ofToString(drift), 20, 110);
+    ofDrawBitmapString("ABS drift : " + ofToString(absDrift), 20, 130);
+    ofDrawBitmapString("modulo frame : " + ofToString(modFrame), 20, 150);
 
-    ofDrawBitmapString("total length : " + ofToString(player.getTotalNumFrames()), 20, 150);
-    ofDrawBitmapString("reloads : " + ofToString(reloads), 20, 170);
+    ofDrawBitmapString("total length : " + ofToString(player.getTotalNumFrames()), 20, 170);
+    ofDrawBitmapString("reloads : " + ofToString(reloads), 20, 190);
+    ofDrawBitmapString("player speed : " + ofToString(player.getPlaybackSpeed()), 20, 210);
+    ofDrawBitmapString("engine speed : " + ofToString(player.engine.currentSpeed), 20, 230);
+    ofDrawBitmapString("EOS submitted : " + ofToString(player.isSubmitEOS()), 20, 250);
+    ofDrawBitmapString("seek allowed : " + ofToString(bCanSeek), 20, 270);
+
 
     ofPopStyle();
+}
 }
 //--------------------------------------------------------------
 
@@ -156,18 +157,10 @@ void ofApp::audioIn(float * input, int bufferSize, int nChannels){
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key) {
 
-//    if(key == 32) { player.togglePause(); }
-    if(key == 48) { player.increaseSpeed(); } 
-else
-{
-    if(key == 57) { player.decreaseSpeed(); } 
-}
 }
 //--------------------------------------------------------------
 void ofApp::doRestart()
 {
-  player.seekToFrame(modFrame);
-  player.start();
   bRestart = false;
 }
 //--------------------------------------------------------------

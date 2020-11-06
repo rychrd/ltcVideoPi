@@ -4,7 +4,7 @@
 #include "ofxLtcReader.h"
 #include "ofxOMXPlayer.h"
 
-class ofApp : public ofBaseApp, public ofxOMXPlayerListener{
+class ofApp : public ofBaseApp , public ofxOMXPlayerListener{
 
 	public:
 		void setup();
@@ -23,11 +23,11 @@ class ofApp : public ofBaseApp, public ofxOMXPlayerListener{
 		ofxOMXPlayer player;
 		ofxOMXPlayerSettings settings;		
 
-		int ltcFrame, prevLTC;
-		int drift;
+		int ltcFrame, prevLTC, movFrame;
+		int drift, absDrift;
 		int frameTarget;
 		int modFrame;
 		int length, reloads;
-		bool bRestart, bSpeedUp, bSlowDown;
+		bool bRestart, bSpeedUp, bSlowDown, bCanSeek;
 
 };
