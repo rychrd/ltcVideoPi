@@ -77,33 +77,27 @@ if(absDrift < 1)
     	}
  }
 
-if((drift > 5) && (player.getPlaybackSpeed() < 1125))
+int speed = player.getPlaybackSpeed();
+
+if(drift > 5 && speed < 1125)
 {
     player.engine.currentSpeed = 6;
     player.engine.SetSpeed();
-    bSpeedUp = true;
-    bSlowDown = false;
 }
 	
-if((drift < -5) && (player.getPlaybackSpeed() > 62))
-{
+if(drift < -5 && speed > 62)
+ {
     player.engine.currentSpeed = 0;
     player.engine.SetSpeed();
-    bSlowDown = true;
-    bSpeedUp = false;
-}
+ }
 if((prevLTC == ltcFrame) && (absDrift == 0))
-  {
-//   player.setPaused(true);
-//   bSpeedUp = bSlowDown = true;
-  } 
+ {
+   player.setPaused(true);
+ } 
 else 
-  {
-//   player.setPaused(false);
-//   bSpeedUp = bSlowDown = false;
-  }
-
-
+ {
+   player.setPaused(false);
+ }
 
 prevLTC = ltcFrame;
 }
