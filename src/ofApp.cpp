@@ -66,7 +66,7 @@ if(!player.getTotalNumFrames())
 movFrame = player.getCurrentFrame();
 modFrame = ltcFrame % length;
 
-if(modFrame == 0) 
+if(modFrame==0 || ltcFrame <=2) 
 {
 player.seekToFrame(0);
 ofLog(OF_LOG_NOTICE, "player set to frame zero \n ");
