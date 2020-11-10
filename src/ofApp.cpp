@@ -32,6 +32,7 @@ void ofApp::setup(){
    prevLTC = 0;
    movFrame = 0;
    bCanSeek = true;
+   ofSetVerticalSync(true);
 }
 
 //--------------------------------------------------------------
@@ -65,9 +66,15 @@ if(!player.getTotalNumFrames())
 movFrame = player.getCurrentFrame();
 modFrame = ltcFrame % length;
 
-
+if(modFrame == 0) 
+{
+player.seekToFrame(0);
+ofLog(OF_LOG_NOTICE, "player set to frame zero \n ");
+}
+ 
 drift = modFrame - movFrame;
 absDrift = abs(drift);
+
 
 if(absDrift < 1) 
  {
@@ -78,6 +85,7 @@ if(absDrift < 1)
  }
 
 int speed = player.getPlaybackSpeed();
+
 
 if(drift > 5 && speed < 1125)
 {
@@ -90,13 +98,15 @@ if(drift < -5 && speed > 62)
     player.engine.currentSpeed = 0;
     player.engine.SetSpeed();
  }
+
+
 if((prevLTC == ltcFrame) && (absDrift == 0))
  {
-   player.setPaused(true);
+  // player.setPaused(true);
  } 
 else 
  {
-   player.setPaused(false);
+  // player.setPaused(false);
  }
 
 prevLTC = ltcFrame;
