@@ -6,11 +6,11 @@ void ofApp::setup(){
     
     //Setup an audio device with ofSoundStream
     snd.listDevices();
-    snd.setDeviceID(3); // 3 is usb to analogue dongle
-    snd.setup(this, 0, 2, 48000, 256, 4); // outputs,inputs,samplerate, buffer, num buffers 
+    snd.setDeviceID(2); // usb to analogue dongle ID
+    snd.setup(this, 0, 1, 44100, 256, 4); // outputs,inputs,samplerate, buffer, num buffers 
     
     //Setup a ltc reader by passing a pointer to this ofSoundStream with expected framerate
-    reader.setup(&snd,24);
+    reader.setup(&snd, 24);
     
     //setup OMXPlayer
 
@@ -139,7 +139,7 @@ void ofApp::draw(){
     ofDrawBitmapString("reloads : " + ofToString(reloads), 20, 190);
     ofDrawBitmapString("player speed : " + ofToString(player.getPlaybackSpeed()), 20, 210);
     ofDrawBitmapString("engine speed : " + ofToString(player.engine.currentSpeed), 20, 230);
-    ofDrawBitmapString("EOS submitted : " + ofToString(player.isSubmitEOS()), 20, 250);
+//    ofDrawBitmapString("EOS submitted : " + ofToString(player.isSubmitEOS()), 20, 250);
     ofDrawBitmapString("seek allowed : " + ofToString(bCanSeek), 20, 270);
 
 
@@ -150,8 +150,8 @@ void ofApp::draw(){
 
 void ofApp::audioIn(float * input, int bufferSize, int nChannels){
     
-    //Each time audioIn is called, call readLtc to update ltc values
-    reader.readLtc(input, nChannels, 2);
+ // Last parameter is the channel index - set to 1 for mono mic input
+    reader.readLtc(input, nChannels, 1);
     
 }
 //--------------------------------------------------------------
