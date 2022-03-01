@@ -1,5 +1,6 @@
 
 #include "ofApp.h"
+#define FR 30.0
 
 //--------------------------------------------------------------
 void ofApp::setup(){
@@ -7,24 +8,24 @@ void ofApp::setup(){
     //Setup an audio device with ofSoundStream
     snd.listDevices();
     snd.setDeviceID(2); // usb to analogue dongle ID
-    snd.setup(this, 0, 1, 44100, 256, 4); // outputs,inputs,samplerate, buffer, num buffers 
+    snd.setup(this, 0, 1, 48000, 512, 4); // outputs,inputs,samplerate, buffer, num buffers 
     
     //Setup a ltc reader by passing a pointer to this ofSoundStream with expected framerate
-    reader.setup(&snd, 24);
+    reader.setup(&snd, FR);
     
     //setup OMXPlayer
 
-    string videoPath = ofToDataPath("video/Timecoded_Big_bunny_1.mov", true);
+    string videoPath = ofToDataPath("video/ghost_front.mp4", true);
     settings.videoPath = videoPath;
     settings.useHDMIForAudio = false;
     settings.enableLooping = true;
-    settings.enableTexture = true;
+    settings.enableTexture = false;
     settings.listener = this;
     
     player.setup(settings);
     
     length = player.getTotalNumFrames();
-    player.seekToFrame(0);
+   // player.seekToFrame(0);
     
    bSpeedUp = false;
    bSlowDown = false;
@@ -50,10 +51,11 @@ void ofApp::onVideoLoop(ofxOMXPlayer* player)
 
 void ofApp::update(){
     
-ltcFrame = (3600 * reader.ltcHour()
-               + 60 * reader.ltcMinute()
-               + reader.ltcSecond()) * 24
-               + reader.ltcFrame();
+ltcFrame = ( 3600 * reader.ltcHour()
+             + 60 * reader.ltcMinute()
+             + reader.ltcSecond() ) 
+	     * FR
+             + reader.ltcFrame();
 
 if(!player.getTotalNumFrames())
 {
@@ -62,14 +64,14 @@ if(!player.getTotalNumFrames())
 } 
 
 
-movFrame = player.getCurrentFrame();
-modFrame = ltcFrame % length;
+//movFrame = player.getCurrentFrame();
+modFrame = floor(fmod(ltcFrame, length));
 
 
-drift = modFrame - movFrame;
+drift = modFrame - player.getMediaTime() * FR;
 absDrift = abs(drift);
 
-if(absDrift < 1) 
+if(absDrift < 1.0) 
  {
 	if(player.engine.currentSpeed != player.engine.normalSpeedIndex)
 	{
@@ -77,7 +79,7 @@ if(absDrift < 1)
     	}
  }
 
-if((drift > 5) && (player.getPlaybackSpeed() < 1125))
+if((drift > 5.0) && (player.getPlaybackSpeed() < 1125))
 {
     player.engine.currentSpeed = 6;
     player.engine.SetSpeed();
@@ -85,27 +87,20 @@ if((drift > 5) && (player.getPlaybackSpeed() < 1125))
     bSlowDown = false;
 }
 	
-if((drift < -5) && (player.getPlaybackSpeed() > 62))
+if((drift < -5.0) && (player.getPlaybackSpeed() > 62))
 {
     player.engine.currentSpeed = 0;
     player.engine.SetSpeed();
     bSlowDown = true;
     bSpeedUp = false;
 }
-if((prevLTC == ltcFrame) && (absDrift == 0))
-  {
-//   player.setPaused(true);
-//   bSpeedUp = bSlowDown = true;
-  } 
-else 
-  {
-//   player.setPaused(false);
-//   bSpeedUp = bSlowDown = false;
-  }
 
+if(absDrift > 500 && (player.getMediaTime() * FR > 60.0))
+ {
+        player.seekToTimeInSeconds(floor(modFrame / 30.0));
+        cout << "seeked!!" << endl;
+ }
 
-
-prevLTC = ltcFrame;
 }
 //--------------------------------------------------------------
 void ofApp::draw(){

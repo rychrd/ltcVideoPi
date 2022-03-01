@@ -23,10 +23,11 @@ class ofApp : public ofBaseApp , public ofxOMXPlayerListener{
 		ofxOMXPlayer player;
 		ofxOMXPlayerSettings settings;		
 
-		int ltcFrame, prevLTC, movFrame;
-		int drift, absDrift;
+		float prevLTC, movFrame;
+		float drift, absDrift;
 		int frameTarget;
-		int modFrame;
+		float modFrame;
+		float ltcFrame;
 		int length, reloads;
 		bool bRestart, bSpeedUp, bSlowDown, bCanSeek;
 
