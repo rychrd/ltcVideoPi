@@ -1,6 +1,6 @@
 # ltcVideoPi
 Dependencies
 
-ofxOMXPlayer
-ofxLtcReader - use the version from this repo for added stability when LTC is not present
+ofxOMXPlayer   
+ofxLtcReader - the fork in this repo has some guards against noise when timecode is not present on the audio input
 
